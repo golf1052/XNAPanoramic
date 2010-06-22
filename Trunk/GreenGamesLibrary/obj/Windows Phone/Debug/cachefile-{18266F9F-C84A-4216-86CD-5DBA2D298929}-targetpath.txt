@@ -1,3 +1,0 @@
-GreenGamesLibraryFonts\MenuFont.xnb
-GreenGamesLibraryFonts\SectionFont.xnb
-GreenGamesLibraryFonts\TitleFont.xnb
