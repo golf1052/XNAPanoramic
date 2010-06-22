@@ -66,7 +66,7 @@ namespace GreenGamesLibrary
         /// <summary>
         /// The current section, the active section
         /// </summary>
-        public Sections currentSection = Sections.MainSection;
+        public Sections currentSection = Sections.None;
 
         /// <summary>
         /// The previous section, the previously active section
@@ -93,9 +93,7 @@ namespace GreenGamesLibrary
         /// </summary>
         public Dictionary<Sections, List<TextItem>> menuItems = new Dictionary<Sections, List<TextItem>>();
 
-        /// <summary>
-        /// The items located under the menu section, add your own lists for sections you make
-        /// </summary>
+        // The items located under the menu section, add your own lists for sections you make your main class
         public List<TextItem> menuItemsList = new List<TextItem>();
         public List<TextItem> settingsItemList1 = new List<TextItem>();
         public List<TextItem> settingsItemList2 = new List<TextItem>();
@@ -125,7 +123,21 @@ namespace GreenGamesLibrary
         }
 
         /// <summary>
-        /// Gets the default location for text based upon Microsoft's UI panorama specifications
+        /// Gets the default location for text based upon Microsoft's UI panorama specifications, use this one for the title item
+        /// </summary>
+        /// <param name="location">Where it is located in the panorama, a title, a section, or a menu text</param>
+        /// <returns>A Vector2 with where the text should be located</returns>
+        public Vector2 GetDefaultLocation(TextLocation location)
+        {
+            if (location == TextLocation.Title)
+            {
+                return new Vector2(10.0f, -50.0f);
+            }
+            return Vector2.Zero;
+        }
+
+        /// <summary>
+        /// Gets the default location for text based upon Microsoft's UI panorama specifications, use this one for section items
         /// </summary>
         /// <param name="location">Where it is located in the panorama, a title, a section, or a menu text</param>
         /// <param name="titleItem">What is the title text item</param>
@@ -134,10 +146,6 @@ namespace GreenGamesLibrary
         /// <returns>A Vector2 with where the text should be located</returns>
         public Vector2 GetDefaultLocation(TextLocation location, TextItem titleItem, Sections sectionMenu, GraphicsDevice graphics)
         {
-            if (location == TextLocation.Title)
-            {
-                return new Vector2(10.0f, -50.0f);
-            }
             if (location == TextLocation.Section)
             {
                 int position;
@@ -153,7 +161,22 @@ namespace GreenGamesLibrary
                     return new Vector2((graphics.Viewport.Width * position) - (menuPositioning * position) + 10, titleItem.MeasureString().Y - 100.0f);
                 }
             }
+            return Vector2.Zero;
+        }
 
+        /// <summary>
+        /// Gets the default location for text based upon Microsoft's UI panorama specifications, use this one for the first menu item in a list (use PlaceUnderText for subsequent text items)
+        /// </summary>
+        /// <param name="location">Where it is located in the panorama, a title, a section, or a menu text</param>
+        /// <param name="textItem">What text item the current text item should go under</param>
+        /// <param name="spacing">The spacing between the bottom of the specified text item and the current text item</param>
+        /// <returns>A Vector2 with where the text should be located</returns>
+        public Vector2 GetDefaultLocation(TextLocation location, TextItem textItem, float spacing)
+        {
+            if (location == TextLocation.Menu)
+            {
+                return new Vector2(textItem.pos.X + 50.0f, textItem.pos.Y + textItem.MeasureString().Y + spacing);
+            }
             return Vector2.Zero;
         }
 
