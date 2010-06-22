@@ -84,13 +84,6 @@
     <Compile Include="World2D.cs" />
     <Compile Include="World3D.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\GreenGamesLibraryFonts\GreenGamesLibraryFonts\GreenGamesLibraryFonts.contentproj">
-      <Project>{18266F9F-C84A-4216-86CD-5DBA2D298929}</Project>
-      <Name>GreenGamesLibraryFonts</Name>
-      <XnaReferenceType>Content</XnaReferenceType>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--
