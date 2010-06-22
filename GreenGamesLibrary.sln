@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010 Express for Windows Phone
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenGamesLibrary", "GreenGamesLibrary\GreenGamesLibrary.csproj", "{C2B8299D-9FFE-4441-9150-DB5A404E070C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Windows Phone = Debug|Windows Phone
+		Release|Windows Phone = Release|Windows Phone
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2B8299D-9FFE-4441-9150-DB5A404E070C}.Debug|Windows Phone.ActiveCfg = Debug|Windows Phone
+		{C2B8299D-9FFE-4441-9150-DB5A404E070C}.Debug|Windows Phone.Build.0 = Debug|Windows Phone
+		{C2B8299D-9FFE-4441-9150-DB5A404E070C}.Release|Windows Phone.ActiveCfg = Release|Windows Phone
+		{C2B8299D-9FFE-4441-9150-DB5A404E070C}.Release|Windows Phone.Build.0 = Release|Windows Phone
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
