@@ -27,6 +27,8 @@ namespace GreenGamesLibraryExamples
 
         //Section Items
         TextItem section2DItem;
+        TextItem example1;
+        TextItem example2;
         TextItem exitItem;
 
         //Menu Items
@@ -35,6 +37,8 @@ namespace GreenGamesLibraryExamples
 
         //List of TextItems under section2D TextItem
         List<TextItem> example2DList = new List<TextItem>();
+
+        Sprite background;
 
         //Menu Handler
         Menu menuHandler = new Menu();
@@ -87,12 +91,16 @@ namespace GreenGamesLibraryExamples
 
             //Add the sections you are going to use
             menuHandler.sectionList.Add(Menu.Sections.Examples2D, 0);
-            menuHandler.sectionList.Add(Menu.Sections.ExitSection, 1);
+            menuHandler.sectionList.Add(Menu.Sections.Example1, 1);
+            menuHandler.sectionList.Add(Menu.Sections.Example2, 2);
+            menuHandler.sectionList.Add(Menu.Sections.ExitSection, 3);
 
             //Set up the TextItems
             titleTextItem = new TextItem(menuHandler.titleFont, "green games library", menuHandler.GetDefaultLocation(Menu.TextLocation.Title));
 
             section2DItem = new TextItem(menuHandler.sectionFont, "2d examples", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.Examples2D, graphics.GraphicsDevice));
+            example1 = new TextItem(menuHandler.sectionFont, "example", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.Example1, graphics.GraphicsDevice));
+            example2 = new TextItem(menuHandler.sectionFont, "example", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.Example2, graphics.GraphicsDevice));
             exitItem = new TextItem(menuHandler.sectionFont, "exit", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.ExitSection, graphics.GraphicsDevice));
 
             spritesItem = new TextItem(menuHandler.menuFont, "sprites test", menuHandler.GetDefaultLocation(Menu.TextLocation.Menu, section2DItem, 10.0f));
@@ -108,10 +116,14 @@ namespace GreenGamesLibraryExamples
 
             //Add the sections to their corresponding section TextItem
             menuHandler.sectionItems.Add(Menu.Sections.Examples2D, section2DItem);
+            menuHandler.sectionItems.Add(Menu.Sections.Example1, example1);
+            menuHandler.sectionItems.Add(Menu.Sections.Example2, example2);
             menuHandler.sectionItems.Add(Menu.Sections.ExitSection, exitItem);
 
             //Generate the numbered section list
             menuHandler.GenerateNumberedSectionList();
+
+            background = new Sprite(Content.Load<Texture2D>("ILWP"));
         }
 
         /// <summary>
@@ -196,10 +208,10 @@ namespace GreenGamesLibraryExamples
             if (menuHandler.currentSection != Menu.Sections.GameMenu)
             {
                 //Update TextItems
-                menuHandler.UpdateText(menuHandler.currentSection, titleTextItem);
+                menuHandler.UpdatePanorama(menuHandler.currentSection, titleTextItem, background);
 
                 //Update TextItem rectangles
-                menuHandler.UpdateTextRects(titleTextItem);
+                menuHandler.UpdatePanoramaRects(titleTextItem, background);
             }
 
             base.Update(gameTime);
@@ -216,8 +228,8 @@ namespace GreenGamesLibraryExamples
             spriteBatch.Begin();
             if (menuHandler.currentSection != Menu.Sections.GameMenu)
             {
-                //Draw all text
-                menuHandler.DrawText(spriteBatch, titleTextItem);
+                //Draw the panorama
+                menuHandler.DrawPanorama(spriteBatch, titleTextItem, background);
             }
             spriteBatch.End();
 

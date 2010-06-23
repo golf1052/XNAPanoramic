@@ -22,6 +22,19 @@ namespace GreenGamesLibrary
         {
         }
 
+        /// <summary>
+        /// Recolors all the sprites in a specified list of sprites
+        /// </summary>
+        /// <param name="sprites">The list of sprites to recolor</param>
+        /// <param name="color">The color all sprites should be recolored</param>
+        public void RecolorAllSprites(List<Sprite> sprites, Color color)
+        {
+            foreach (Sprite sprite in sprites)
+            {
+                sprite.color = color;
+            }
+        }
+
         public bool PixelPerfectCheck(Rectangle rectangleA, Color[] dataA, Rectangle rectangleB, Color[] dataB)
         {
             // Find the bounds of the rectangle intersection

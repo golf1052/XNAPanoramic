@@ -41,7 +41,9 @@ namespace GreenGamesLibrary
             GameMenu,
             ExitSection,
             Examples2D,
-            None
+            None,
+            Example1,
+            Example2
         }
 
         /// <summary>
@@ -105,12 +107,17 @@ namespace GreenGamesLibrary
         public bool canMove = true;
 
         /// <summary>
-        /// The speed the title text item should move, should move slower than the section and menu text items
+        /// The speed the background image should move. Change this based upon your image size and your panorama length. Should move slower than title text item.
+        /// </summary>
+        public float backgroundSpeed = 4.5f;
+
+        /// <summary>
+        /// The speed the title text item should move, should move slower than the section and menu text items. Change this based upon your panorama length. 
         /// </summary>
         public float titleItemSpeed = 7.0f;
 
         /// <summary>
-        /// The speed the section and menu text items should move, should move faster than the title text item.
+        /// The speed the section and menu text items should move, should move faster than the title text item. Change this based upon your panorama length.
         /// </summary>
         public float menuItemSpeed = 12.0f;
 
@@ -175,7 +182,7 @@ namespace GreenGamesLibrary
         {
             if (location == TextLocation.Menu)
             {
-                return new Vector2(textItem.pos.X + 50.0f, textItem.pos.Y + textItem.MeasureString().Y + spacing);
+                return new Vector2(textItem.pos.X, textItem.pos.Y + textItem.MeasureString().Y + spacing);
             }
             return Vector2.Zero;
         }
@@ -196,7 +203,7 @@ namespace GreenGamesLibrary
         /// </summary>
         /// <param name="selectedMenu">The currently active menu</param>
         /// <param name="titleItem">The title text item</param>
-        public void UpdateText(Sections selectedMenu, TextItem titleItem)
+        public void UpdatePanorama(Sections selectedMenu, TextItem titleItem)
         {
             TextItem currentTextItem;
             TextItem previousTextItem;
@@ -288,12 +295,148 @@ namespace GreenGamesLibrary
         }
 
         /// <summary>
+        /// Moves the panorama left and right based upon the current menu
+        /// </summary>
+        /// <param name="selectedMenu">The currently active menu</param>
+        /// <param name="titleItem">The title text item</param>
+        /// <param name="background">The background image</param>
+        public void UpdatePanorama(Sections selectedMenu, TextItem titleItem, Sprite background)
+        {
+            TextItem currentTextItem;
+            TextItem previousTextItem;
+
+            sectionItems.TryGetValue(selectedMenu, out currentTextItem);
+            sectionItems.TryGetValue(previousSection, out previousTextItem);
+
+            if (currentTextItem.pos.X > 0.0f)
+            {
+                canMove = false;
+                foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
+                {
+                    sectionItem.Value.vel.X = -menuItemSpeed;
+                    sectionItem.Value.pos += sectionItem.Value.vel;
+                }
+
+                foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
+                {
+                    foreach (TextItem item in menuItem.Value)
+                    {
+                        item.vel.X = -menuItemSpeed;
+                        item.pos += item.vel;
+                    }
+                }
+                titleItem.vel.X = -titleItemSpeed;
+                titleItem.pos += titleItem.vel;
+
+                background.vel.X = -backgroundSpeed;
+                background.pos += background.vel;
+
+                sectionItems.TryGetValue(selectedMenu, out currentTextItem);
+
+                if (currentTextItem.pos.X <= 10.0f)
+                {
+                    canMove = true;
+                    foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
+                    {
+                        sectionItem.Value.vel.X = 0.0f;
+                    }
+
+                    foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
+                    {
+                        foreach (TextItem item in menuItem.Value)
+                        {
+                            item.vel.X = 0.0f;
+                        }
+                    }
+                    titleItem.vel.X = 0.0f;
+
+                    background.vel.X = 0.0f;
+                    previousSection = currentSection;
+                }
+            }
+
+            if (currentTextItem.pos.X < 0.0f)
+            {
+                canMove = false;
+                foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
+                {
+                    sectionItem.Value.vel.X = menuItemSpeed;
+                    sectionItem.Value.pos += sectionItem.Value.vel;
+                }
+
+                foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
+                {
+                    foreach (TextItem item in menuItem.Value)
+                    {
+                        item.vel.X = menuItemSpeed;
+                        item.pos += item.vel;
+                    }
+                }
+                titleItem.vel.X = titleItemSpeed;
+                titleItem.pos += titleItem.vel;
+
+                background.vel.X = backgroundSpeed;
+                background.pos += background.vel;
+
+                sectionItems.TryGetValue(selectedMenu, out currentTextItem);
+
+                if (currentTextItem.pos.X >= 10.0f)
+                {
+                    canMove = true;
+                    foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
+                    {
+                        sectionItem.Value.vel.X = 0.0f;
+                    }
+
+                    foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
+                    {
+                        foreach (TextItem item in menuItem.Value)
+                        {
+                            item.vel.X = 0.0f;
+                        }
+                    }
+                    titleItem.vel.X = 0.0f;
+
+                    background.vel.X = 0.0f;
+
+                    previousSection = currentSection;
+                }
+            }
+        }
+
+        /// <summary>
         /// Draw all panoramic text
         /// </summary>
         /// <param name="spriteBatch">SpriteBatch from main class</param>
         /// <param name="titleItem">The title text item</param>
-        public void DrawText(SpriteBatch spriteBatch, TextItem titleItem)
+        public void DrawPanorama(SpriteBatch spriteBatch, TextItem titleItem)
         {
+            spriteBatch.DrawString(titleItem.font, titleItem.text, titleItem.pos, titleItem.color);
+
+            foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
+            {
+                spriteBatch.DrawString(sectionItem.Value.font, sectionItem.Value.text, sectionItem.Value.pos, sectionItem.Value.color);
+            }
+
+            foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
+            {
+                foreach (TextItem item in menuItem.Value)
+                {
+                    spriteBatch.DrawString(item.font, item.text, item.pos, item.color);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw all panoramic text
+        /// </summary>
+        /// <param name="spriteBatch">SpriteBatch from main class</param>
+        /// <param name="titleItem">The title text item</param>
+        /// <param name="background">The background image</param>
+        public void DrawPanorama(SpriteBatch spriteBatch, TextItem titleItem, Sprite background)
+        {
+            spriteBatch.Draw(background.tex, background.pos, background.color);
+
             spriteBatch.DrawString(titleItem.font, titleItem.text, titleItem.pos, titleItem.color);
 
             foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
@@ -314,8 +457,33 @@ namespace GreenGamesLibrary
         /// Updates the text item rectangles
         /// </summary>
         /// <param name="titleItem">The title text item</param>
-        public void UpdateTextRects(TextItem titleItem)
+        public void UpdatePanoramaRects(TextItem titleItem)
         {
+            titleItem.rect = new Rectangle((int)titleItem.pos.X, (int)titleItem.pos.Y, (int)titleItem.font.MeasureString(titleItem.text).X, (int)titleItem.font.MeasureString(titleItem.text).X);
+
+            foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
+            {
+                sectionItem.Value.rect = new Rectangle((int)sectionItem.Value.pos.X, (int)sectionItem.Value.pos.Y, (int)sectionItem.Value.font.MeasureString(sectionItem.Value.text).X, (int)sectionItem.Value.font.MeasureString(sectionItem.Value.text).X);
+            }
+
+            foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
+            {
+                foreach (TextItem item in menuItem.Value)
+                {
+                    item.rect = new Rectangle((int)item.pos.X, (int)item.pos.Y, (int)item.font.MeasureString(item.text).X, (int)item.font.MeasureString(item.text).X);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the panorama rectangles
+        /// </summary>
+        /// <param name="titleItem">The title text item</param>
+        /// <param name="background">The background image</param>
+        public void UpdatePanoramaRects(TextItem titleItem, Sprite background)
+        {
+            background.rect = new Rectangle((int)background.pos.X, (int)background.pos.Y, background.tex.Width, background.tex.Height);
+
             titleItem.rect = new Rectangle((int)titleItem.pos.X, (int)titleItem.pos.Y, (int)titleItem.font.MeasureString(titleItem.text).X, (int)titleItem.font.MeasureString(titleItem.text).X);
 
             foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
@@ -363,19 +531,6 @@ namespace GreenGamesLibrary
                 {
                     item.color = color;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Recolors all the sprites in a specified list of sprites
-        /// </summary>
-        /// <param name="sprites">The list of sprites to recolor</param>
-        /// <param name="color">The color all sprites should be recolored</param>
-        public void RecolorAllSprites(List<Sprite> sprites, Color color)
-        {
-            foreach (Sprite sprite in sprites)
-            {
-                sprite.color = color;
             }
         }
 
