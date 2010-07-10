@@ -37,8 +37,22 @@ namespace GreenGamesLibraryExamples
 
         //List of TextItems under section2D TextItem
         List<TextItem> example2DList = new List<TextItem>();
+        List<TextItem> exampleTextList = new List<TextItem>();
+        List<Sprite> example1SpriteList = new List<Sprite>();
+        List<Sprite> exampleSpriteList = new List<Sprite>();
 
+        //Example text
+        TextItem exampleText;
+
+        //Background
         Sprite background;
+
+        //Menu sprites
+        Sprite i;
+        Sprite love;
+        Sprite windows;
+        Sprite phone;
+        Sprite logo;
 
         //Menu Handler
         Menu menuHandler = new Menu();
@@ -83,6 +97,12 @@ namespace GreenGamesLibraryExamples
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            i = new Sprite(Content.Load<Texture2D>("i"));
+            love = new Sprite(Content.Load<Texture2D>("love"));
+            windows = new Sprite(Content.Load<Texture2D>("windows"));
+            phone = new Sprite(Content.Load<Texture2D>("phone"));
+            logo = new Sprite(Content.Load<Texture2D>("windows_phone_logo-300x300"));
+
             //First set the main section (the first one)
             menuHandler.currentSection = Menu.Sections.Examples2D;
 
@@ -96,22 +116,41 @@ namespace GreenGamesLibraryExamples
             menuHandler.sectionList.Add(Menu.Sections.ExitSection, 3);
 
             //Set up the TextItems
-            titleTextItem = new TextItem(menuHandler.titleFont, "green games library", menuHandler.GetDefaultLocation(Menu.TextLocation.Title));
+            titleTextItem = new TextItem(menuHandler.titleFont, "green games library", menuHandler.GetDefaultLocation(Menu.ItemLocation.Title));
 
-            section2DItem = new TextItem(menuHandler.sectionFont, "2d examples", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.Examples2D, graphics.GraphicsDevice));
-            example1 = new TextItem(menuHandler.sectionFont, "example", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.Example1, graphics.GraphicsDevice));
-            example2 = new TextItem(menuHandler.sectionFont, "example", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.Example2, graphics.GraphicsDevice));
-            exitItem = new TextItem(menuHandler.sectionFont, "exit", menuHandler.GetDefaultLocation(Menu.TextLocation.Section, titleTextItem, Menu.Sections.ExitSection, graphics.GraphicsDevice));
+            section2DItem = new TextItem(menuHandler.sectionFont, "2d examples", menuHandler.GetDefaultLocation(Menu.ItemLocation.Section, titleTextItem, Menu.Sections.Examples2D, graphics.GraphicsDevice));
+            example1 = new TextItem(menuHandler.sectionFont, "example", menuHandler.GetDefaultLocation(Menu.ItemLocation.Section, titleTextItem, Menu.Sections.Example1, graphics.GraphicsDevice));
+            example2 = new TextItem(menuHandler.sectionFont, "example", menuHandler.GetDefaultLocation(Menu.ItemLocation.Section, titleTextItem, Menu.Sections.Example2, graphics.GraphicsDevice));
+            exitItem = new TextItem(menuHandler.sectionFont, "exit", menuHandler.GetDefaultLocation(Menu.ItemLocation.Section, titleTextItem, Menu.Sections.ExitSection, graphics.GraphicsDevice));
 
-            spritesItem = new TextItem(menuHandler.menuFont, "sprites test", menuHandler.GetDefaultLocation(Menu.TextLocation.Menu, section2DItem, 10.0f));
-            exitMenuItem = new TextItem(menuHandler.menuFont, "exit", menuHandler.GetDefaultLocation(Menu.TextLocation.Menu, exitItem, 10.0f));
+            spritesItem = new TextItem(menuHandler.menuFont, "sprites test", menuHandler.GetDefaultLocation(Menu.ItemLocation.Menu, section2DItem, 10.0f));
+            exitMenuItem = new TextItem(menuHandler.menuFont, "exit", menuHandler.GetDefaultLocation(Menu.ItemLocation.Menu, exitItem, 10.0f));
+
+            //Get positions for sprites
+            logo.pos = menuHandler.GetDefaultLocation(Menu.ItemLocation.Menu, example1, 10.0f);
+            i.pos = menuHandler.GetDefaultLocation(Menu.ItemLocation.Menu, example2, 10.0f);
+            love.pos = menuHandler.PlaceNextSprite(i, Menu.SpriteLocation.Under);
+            windows.pos = menuHandler.PlaceNextSprite(i, Menu.SpriteLocation.Right);
+            phone.pos = menuHandler.PlaceNextSprite(windows, Menu.SpriteLocation.Under);
+
+            //Setup example text
+            exampleText = new TextItem(menuHandler.infoFont, "Example text", menuHandler.GetDefaultLocation(Menu.ItemLocation.Info, i, exampleText));
 
             //Add the menu items to their appropriate lists
             example2DList.Add(spritesItem);
+            example1SpriteList.Add(logo);
+            exampleSpriteList.Add(i);
+            exampleSpriteList.Add(love);
+            exampleSpriteList.Add(windows);
+            exampleSpriteList.Add(phone);
+            exampleTextList.Add(exampleText);
             menuHandler.exitItemsList.Add(exitMenuItem);
 
             //Add those lists to menu items
             menuHandler.menuItems.Add(Menu.Sections.Examples2D, example2DList);
+            menuHandler.menuSpriteItems.Add(Menu.Sections.Example1, example1SpriteList);
+            menuHandler.menuSpriteItems.Add(Menu.Sections.Example2, exampleSpriteList);
+            menuHandler.menuItems.Add(Menu.Sections.Example2, exampleTextList);
             menuHandler.menuItems.Add(Menu.Sections.ExitSection, menuHandler.exitItemsList);
 
             //Add the sections to their corresponding section TextItem
