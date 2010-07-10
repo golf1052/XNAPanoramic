@@ -58,11 +58,21 @@ namespace GreenGamesLibrary
         /// <summary>
         /// The location of a text item
         /// </summary>
-        public enum TextLocation
+        public enum ItemLocation
         {
             Title,
             Section,
-            Menu
+            Menu,
+            Info
+        }
+
+        /// <summary>
+        /// The where a sprite should be placed based upon a ref sprite
+        /// </summary>
+        public enum SpriteLocation
+        {
+            Under,
+            Right
         }
 
         /// <summary>
@@ -95,6 +105,11 @@ namespace GreenGamesLibrary
         /// </summary>
         public Dictionary<Sections, List<TextItem>> menuItems = new Dictionary<Sections, List<TextItem>>();
 
+        /// <summary>
+        /// The sprite items located in a section
+        /// </summary>
+        public Dictionary<Sections, List<Sprite>> menuSpriteItems = new Dictionary<Sections, List<Sprite>>();
+
         // The items located under the menu section, add your own lists for sections you make your main class
         public List<TextItem> menuItemsList = new List<TextItem>();
         public List<TextItem> settingsItemList1 = new List<TextItem>();
@@ -124,6 +139,7 @@ namespace GreenGamesLibrary
         public SpriteFont titleFont;
         public SpriteFont sectionFont;
         public SpriteFont menuFont;
+        public SpriteFont infoFont;
 
         public Menu()
         {
@@ -134,9 +150,9 @@ namespace GreenGamesLibrary
         /// </summary>
         /// <param name="location">Where it is located in the panorama, a title, a section, or a menu text</param>
         /// <returns>A Vector2 with where the text should be located</returns>
-        public Vector2 GetDefaultLocation(TextLocation location)
+        public Vector2 GetDefaultLocation(ItemLocation location)
         {
-            if (location == TextLocation.Title)
+            if (location == ItemLocation.Title)
             {
                 return new Vector2(10.0f, -50.0f);
             }
@@ -151,9 +167,9 @@ namespace GreenGamesLibrary
         /// <param name="sectionMenu">The section the text item should be located</param>
         /// <param name="graphics">graphics.GraphicsDevice from main class</param>
         /// <returns>A Vector2 with where the text should be located</returns>
-        public Vector2 GetDefaultLocation(TextLocation location, TextItem titleItem, Sections sectionMenu, GraphicsDevice graphics)
+        public Vector2 GetDefaultLocation(ItemLocation location, TextItem titleItem, Sections sectionMenu, GraphicsDevice graphics)
         {
-            if (location == TextLocation.Section)
+            if (location == ItemLocation.Section)
             {
                 int position;
                 sectionList.TryGetValue(sectionMenu, out position);
@@ -172,17 +188,33 @@ namespace GreenGamesLibrary
         }
 
         /// <summary>
-        /// Gets the default location for text based upon Microsoft's UI panorama specifications, use this one for the first menu item in a list (use PlaceUnderText for subsequent text items)
+        /// Gets the default location for text based upon Microsoft's UI panorama specifications, use this one for the first menu item in a list (use PlaceUnderText for subsequent text items) or for the first picture item in a list
         /// </summary>
         /// <param name="location">Where it is located in the panorama, a title, a section, or a menu text</param>
         /// <param name="textItem">What text item the current text item should go under</param>
         /// <param name="spacing">The spacing between the bottom of the specified text item and the current text item</param>
         /// <returns>A Vector2 with where the text should be located</returns>
-        public Vector2 GetDefaultLocation(TextLocation location, TextItem textItem, float spacing)
+        public Vector2 GetDefaultLocation(ItemLocation location, TextItem textItem, float spacing)
         {
-            if (location == TextLocation.Menu)
+            if (location == ItemLocation.Menu)
             {
                 return new Vector2(textItem.pos.X, textItem.pos.Y + textItem.MeasureString().Y + spacing);
+            }
+            return Vector2.Zero;
+        }
+
+        /// <summary>
+        /// Gets the default location for info text in sprites
+        /// </summary>
+        /// <param name="location">Where it is located in the panorama, a title, a section, or a menu text</param>
+        /// <param name="sprite">What sprite the text item will be located on</param>
+        /// <param name="textItem">The text item</param>
+        /// <returns>A Vector2 with where the current sprite should be located</returns>
+        public Vector2 GetDefaultLocation(ItemLocation location, Sprite sprite, TextItem textItem)
+        {
+            if (location == ItemLocation.Info)
+            {
+                return new Vector2(sprite.pos.X + 12, sprite.pos.Y + sprite.tex.Height - textItem.MeasureString().Y - 12);
             }
             return Vector2.Zero;
         }
@@ -196,6 +228,7 @@ namespace GreenGamesLibrary
             titleFont = Content.Load<SpriteFont>("TitleFont");
             sectionFont = Content.Load<SpriteFont>("SectionFont");
             menuFont = Content.Load<SpriteFont>("MenuFont");
+            infoFont = Content.Load<SpriteFont>("InfoFont");
         }
 
         /// <summary>
@@ -228,6 +261,16 @@ namespace GreenGamesLibrary
                         item.pos += item.vel;
                     }
                 }
+
+                foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                {
+                    foreach (Sprite item in spriteItem.Value)
+                    {
+                        item.vel.X = -menuItemSpeed;
+                        item.pos += item.vel;
+                    }
+                }
+
                 titleItem.vel.X = -titleItemSpeed;
                 titleItem.pos += titleItem.vel;
                 sectionItems.TryGetValue(selectedMenu, out currentTextItem);
@@ -247,6 +290,15 @@ namespace GreenGamesLibrary
                             item.vel.X = 0.0f;
                         }
                     }
+
+                    foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                    {
+                        foreach (Sprite item in spriteItem.Value)
+                        {
+                            item.vel.X = 0.0f;
+                        }
+                    }
+
                     titleItem.vel.X = 0.0f;
                     previousSection = currentSection;
                 }
@@ -269,6 +321,16 @@ namespace GreenGamesLibrary
                         item.pos += item.vel;
                     }
                 }
+
+                foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                {
+                    foreach (Sprite item in spriteItem.Value)
+                    {
+                        item.vel.X = menuItemSpeed;
+                        item.pos += item.vel;
+                    }
+                }
+
                 titleItem.vel.X = titleItemSpeed;
                 titleItem.pos += titleItem.vel;
                 sectionItems.TryGetValue(selectedMenu, out currentTextItem);
@@ -284,6 +346,14 @@ namespace GreenGamesLibrary
                     foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
                     {
                         foreach (TextItem item in menuItem.Value)
+                        {
+                            item.vel.X = 0.0f;
+                        }
+                    }
+
+                    foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                    {
+                        foreach (Sprite item in spriteItem.Value)
                         {
                             item.vel.X = 0.0f;
                         }
@@ -325,6 +395,15 @@ namespace GreenGamesLibrary
                         item.pos += item.vel;
                     }
                 }
+
+                foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                {
+                    foreach (Sprite item in spriteItem.Value)
+                    {
+                        item.vel.X = -menuItemSpeed;
+                        item.pos += item.vel;
+                    }
+                }
                 titleItem.vel.X = -titleItemSpeed;
                 titleItem.pos += titleItem.vel;
 
@@ -344,6 +423,14 @@ namespace GreenGamesLibrary
                     foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
                     {
                         foreach (TextItem item in menuItem.Value)
+                        {
+                            item.vel.X = 0.0f;
+                        }
+                    }
+
+                    foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                    {
+                        foreach (Sprite item in spriteItem.Value)
                         {
                             item.vel.X = 0.0f;
                         }
@@ -372,6 +459,16 @@ namespace GreenGamesLibrary
                         item.pos += item.vel;
                     }
                 }
+
+                foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                {
+                    foreach (Sprite item in spriteItem.Value)
+                    {
+                        item.vel.X = menuItemSpeed;
+                        item.pos += item.vel;
+                    }
+                }
+
                 titleItem.vel.X = titleItemSpeed;
                 titleItem.pos += titleItem.vel;
 
@@ -395,6 +492,15 @@ namespace GreenGamesLibrary
                             item.vel.X = 0.0f;
                         }
                     }
+
+                    foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+                    {
+                        foreach (Sprite item in spriteItem.Value)
+                        {
+                            item.vel.X = 0.0f;
+                        }
+                    }
+
                     titleItem.vel.X = 0.0f;
 
                     background.vel.X = 0.0f;
@@ -416,6 +522,14 @@ namespace GreenGamesLibrary
             foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
             {
                 spriteBatch.DrawString(sectionItem.Value.font, sectionItem.Value.text, sectionItem.Value.pos, sectionItem.Value.color);
+            }
+
+            foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+            {
+                foreach (Sprite item in spriteItem.Value)
+                {
+                    spriteBatch.Draw(item.tex, item.pos, item.color);
+                }
             }
 
             foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
@@ -442,6 +556,14 @@ namespace GreenGamesLibrary
             foreach (KeyValuePair<Sections, TextItem> sectionItem in sectionItems)
             {
                 spriteBatch.DrawString(sectionItem.Value.font, sectionItem.Value.text, sectionItem.Value.pos, sectionItem.Value.color);
+            }
+
+            foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+            {
+                foreach (Sprite item in spriteItem.Value)
+                {
+                    spriteBatch.Draw(item.tex, item.pos, item.color);
+                }
             }
 
             foreach (KeyValuePair<Sections, List<TextItem>> menuItem in menuItems)
@@ -473,6 +595,14 @@ namespace GreenGamesLibrary
                     item.rect = new Rectangle((int)item.pos.X, (int)item.pos.Y, (int)item.font.MeasureString(item.text).X, (int)item.font.MeasureString(item.text).X);
                 }
             }
+
+            foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+            {
+                foreach (Sprite item in spriteItem.Value)
+                {
+                    item.rect = new Rectangle((int)item.pos.X, (int)item.pos.Y, item.tex.Width, item.tex.Height);
+                }
+            }
         }
 
         /// <summary>
@@ -498,6 +628,14 @@ namespace GreenGamesLibrary
                     item.rect = new Rectangle((int)item.pos.X, (int)item.pos.Y, (int)item.font.MeasureString(item.text).X, (int)item.font.MeasureString(item.text).X);
                 }
             }
+
+            foreach (KeyValuePair<Sections, List<Sprite>> spriteItem in menuSpriteItems)
+            {
+                foreach (Sprite item in spriteItem.Value)
+                {
+                    item.rect = new Rectangle((int)item.pos.X, (int)item.pos.Y, item.tex.Width, item.tex.Height);
+                }
+            }
         }
 
         /// <summary>
@@ -509,6 +647,25 @@ namespace GreenGamesLibrary
         public Vector2 PlaceUnderText(TextItem textItem, float spacing)
         {
             return new Vector2(textItem.pos.X, textItem.pos.Y + textItem.MeasureString().Y + spacing);
+        }
+
+        /// <summary>
+        /// Places the current sprite item under or to the right of the specified sprite
+        /// </summary>
+        /// <param name="sprite">The specified sprite item</param>
+        /// <param name="location">Where the current sprite should go</param>
+        /// <returns>A Vector2 with the position of the current sprite</returns>
+        public Vector2 PlaceNextSprite(Sprite sprite, SpriteLocation location)
+        {
+            if (location == SpriteLocation.Under)
+            {
+                return new Vector2(sprite.pos.X, sprite.pos.Y + sprite.tex.Height + 12.0f);
+            }
+            else if (location == SpriteLocation.Right)
+            {
+                return new Vector2(sprite.pos.X + sprite.tex.Width + 12.0f, sprite.pos.Y);
+            }
+            return Vector2.Zero;
         }
 
         /// <summary>
